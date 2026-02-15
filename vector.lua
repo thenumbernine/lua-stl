@@ -34,16 +34,16 @@ end
 vectorbase.__len = vectorbase.size
 
 function vectorbase:capacity()
---DEBUG(ffi.cpp.vector): print'vectorbase.capacity()'
---DEBUG(ffi.cpp.vector): print('ffi.typeof(self) = ', ffi.typeof(self))
---DEBUG(ffi.cpp.vector): print('(void*)self = ', tostring(ffi.cast('void*', self)))
+--DEBUG:print'vectorbase.capacity()'
+--DEBUG:print('ffi.typeof(self) = ', ffi.typeof(self))
+--DEBUG:print('(void*)self = ', tostring(ffi.cast('void*', self)))
 -- TODO how come printing pointers is crashing?
---DEBUG(ffi.cpp.vector): print('self.start', tostring(self.start))
---DEBUG(ffi.cpp.vector): -- print('self.start', ''..self.start)
---DEBUG(ffi.cpp.vector): -- print('self.start', tostring(ffi.cast('void*', self.start)))
---DEBUG(ffi.cpp.vector): -- print('self.endOfStorage', tostring(ffi.cast('void*', self.endOfStorage)))
---DEBUG(ffi.cpp.vector): print('self.endOfStorage', tostring(self.endOfStorage))
---DEBUG(ffi.cpp.vector): print('returning', tostring(self.endOfStorage - self.start))
+--DEBUG:print('self.start', tostring(self.start))
+--DEBUG:-- print('self.start', ''..self.start)
+--DEBUG:-- print('self.start', tostring(ffi.cast('void*', self.start)))
+--DEBUG:-- print('self.endOfStorage', tostring(ffi.cast('void*', self.endOfStorage)))
+--DEBUG:print('self.endOfStorage', tostring(self.endOfStorage))
+--DEBUG:print('returning', tostring(self.endOfStorage - self.start))
 	return self.endOfStorage - self.start
 end
 
@@ -78,11 +78,11 @@ end
 vectorbase.__pairs = vectorbase.__ipairs
 
 function vectorbase:reserve(newcap)
---DEBUG(ffi.cpp.vector): print('vectorbase.reserve', newcap)
+--DEBUG:print('vectorbase.reserve', newcap)
 	local oldcap = self:capacity()
---DEBUG(ffi.cpp.vector): print('oldcap', oldcap)
+--DEBUG:print('oldcap', oldcap)
 	if newcap <= oldcap then
---DEBUG(ffi.cpp.vector): print('newcap <= oldcap, returning')
+--DEBUG:print('newcap <= oldcap, returning')
 		return
 	end
 
@@ -99,31 +99,31 @@ function vectorbase:reserve(newcap)
 	-- so self:capacity() < newcap
 	-- TODO realloc?
 	local bytes = ffi.sizeof(self.type) * newcap
---DEBUG(ffi.cpp.vector): print('allocating '..tostring(bytes)..' bytes')
+--DEBUG:print('allocating '..tostring(bytes)..' bytes')
 	local newv = ffi.C.malloc(bytes)
 	if newv == null then error("malloc failed to allocate "..bytes) end
 	local size = self:size()
 	assert.le(size, oldcap)
---DEBUG(ffi.cpp.vector): print('copying old', tostring(ffi.cast('void*', self.v)), 'to new', tostring(ffi.cast('void*', newv)), '#bytes', ffi.sizeof(self.type) * size)
+--DEBUG:print('copying old', tostring(ffi.cast('void*', self.v)), 'to new', tostring(ffi.cast('void*', newv)), '#bytes', ffi.sizeof(self.type) * size)
 	if self.v ~= null then
 		ffi.copy(newv, self.v, ffi.sizeof(self.type) * size)
---DEBUG(ffi.cpp.vector): print('freeing', tostring(ffi.cast('void*', self.v)))
+--DEBUG:print('freeing', tostring(ffi.cast('void*', self.v)))
 		ffi.C.free(self.v)
 	end
 	self.v = newv
---DEBUG(ffi.cpp.vector): print('new v:', tostring(ffi.cast('void*', self.v)))
+--DEBUG:print('new v:', tostring(ffi.cast('void*', self.v)))
 	self.finish = self.v + size
---DEBUG(ffi.cpp.vector): print('new finish:', tostring(ffi.cast('void*', self.finish)))
+--DEBUG:print('new finish:', tostring(ffi.cast('void*', self.finish)))
 	self.endOfStorage = self.v + newcap
---DEBUG(ffi.cpp.vector): print('new endOfStorage:', tostring(ffi.cast('void*', self.endOfStorage)))
+--DEBUG:print('new endOfStorage:', tostring(ffi.cast('void*', self.endOfStorage)))
 end
 
 function vectorbase:resize(newsize)
---DEBUG(ffi.cpp.vector): print('vectorbase.resize', newsize)
+--DEBUG:print('vectorbase.resize', newsize)
 	self:reserve(newsize)
 	-- TODO ffi.fill with zero here?
 	self.finish = self.v + newsize
---DEBUG(ffi.cpp.vector): assert.ge(self:size(), newsize)
+--DEBUG:assert.ge(self:size(), newsize)
 end
 
 function vectorbase:clear()
@@ -132,7 +132,7 @@ end
 
 function vectorbase:push_back(obj)
 	self:resize(self:size() + 1)
---DEBUG(ffi.cpp.vector): assert.gt(self:size(), 0)
+--DEBUG:assert.gt(self:size(), 0)
 	self.finish[-1] = obj
 end
 
@@ -176,8 +176,8 @@ function vectorbase:insert(...)
 	local n = select('#', ...)
 	if n == 3 then
 		local where, first, last = ...
---DEBUG(ffi.cpp.vector): first = ffi.cast(self.typePtr, first)
---DEBUG(ffi.cpp.vector): last = ffi.cast(self.typePtr, last)
+--DEBUG:first = ffi.cast(self.typePtr, first)
+--DEBUG:last = ffi.cast(self.typePtr, last)
 
 		local numToCopy = last - first
 		if numToCopy == 0 then return end
