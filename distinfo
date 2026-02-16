@@ -5,6 +5,7 @@
 name = "stl"
 files = {
 	"README.md",
+	"distinfo",
 	"vector-lua.lua",
 	"vector.lua",
 }
