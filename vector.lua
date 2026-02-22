@@ -10,7 +10,6 @@ local assert = require 'ext.assert'
 local range = require 'ext.range'
 require 'ffi.req' 'c.stdlib'	-- malloc, free
 
-local null = ffi.null	-- for luaffi
 local void_ptr = ffi.typeof'void*'
 local uint8_t_ptr = ffi.typeof'uint8_t*'
 
@@ -21,7 +20,7 @@ local vectorbase = {}
 function vectorbase:__gc()
 	-- I could use ffi.new and just trust luajit for the gc
 	-- but then this wouldn't be so compatible with casting std::vector<> memory blobs directly
-	if self.v ~= null then
+	if self.v ~= nil then
 		ffi.C.free(self.v)
 	end
 end
@@ -101,11 +100,11 @@ function vectorbase:reserve(newcap)
 	local bytes = ffi.sizeof(self.type) * newcap
 --DEBUG:print('allocating '..tostring(bytes)..' bytes')
 	local newv = ffi.C.malloc(bytes)
-	if newv == null then error("malloc failed to allocate "..bytes) end
+	if newv == nil then error("malloc failed to allocate "..bytes) end
 	local size = self:size()
 	assert.le(size, oldcap)
 --DEBUG:print('copying old', tostring(ffi.cast('void*', self.v)), 'to new', tostring(ffi.cast('void*', newv)), '#bytes', ffi.sizeof(self.type) * size)
-	if self.v ~= null then
+	if self.v ~= nil then
 		ffi.copy(newv, self.v, ffi.sizeof(self.type) * size)
 --DEBUG:print('freeing', tostring(ffi.cast('void*', self.v)))
 		ffi.C.free(self.v)
