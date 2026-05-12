@@ -3,6 +3,8 @@
 --------------------------------------------
 
 name = "stl"
+git = "https://github.com/thenumbernine/lua-stl.git"
+
 files = {
 	"README.md",
 	"distinfo",
